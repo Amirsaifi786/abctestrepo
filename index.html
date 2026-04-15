@@ -1,20 +1,754 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Lorem Ipsum Sample Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dolphins School ID - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --dolphins-blue: #003366;
+            --dolphins-gold: #fbc02d;
+            --dolphins-red: #800000;
+
+        }
+
+        #v_addr,
+        #v_fmobile,
+        #v_mother,
+        #v_father,
+        #v_class,
+        #v_eno #v_dob {
+            color: #333;
+            font-weight: bold;
+            padding-left: 20px;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        /* Professional Form Styling */
+        .admin-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #444;
+            font-size: 0.85rem;
+        }
+
+        .section-title {
+            border-left: 4px solid var(--dolphins-blue);
+            padding-left: 10px;
+            margin: 20px 0 15px 0;
+            color: var(--dolphins-blue);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #bulk-render-area {
+            width: 1120px;
+            /* landscape fit */
+        }
+
+
+        /* ID Card Preview Canvas */
+        #pdf-content {
+            padding: 20px;
+            background: #fff;
+            display: inline-block;
+            border-radius: 8px;
+        }
+
+        .id-card-canvas {
+            /* width: 500px !important;
+            height: 310px !important; */
+            display: inline-block;
+            vertical-align: top;
+            page-break-inside: avoid;
+            width: 500px;
+            height: 324px;
+            background: white;
+            border: 1px solid #ddd;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Front Side Elements */
+        .card-header-box {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 3px solid #fbc02d;
+        }
+
+        .school-info h1 {
+            font-size: 26px;
+            margin: 0;
+            color: #4b6321;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .school-info p {
+            font-size: 13px;
+            margin: 0;
+            color: var(--dolphins-blue);
+            font-weight: 700;
+        }
+
+        .stu-photo-area {
+            width: 130px;
+            text-align: center;
+            position: relative;
+            padding-left: 15px;
+            padding-top: 10px;
+        }
+
+        .stu-photo-area img {
+            width: 100px;
+            height: 120px;
+            border: 1px solid #000;
+            object-fit: cover;
+            background: #eee;
+        }
+
+        .session-text {
+            transform: rotate(-90deg);
+            position: absolute;
+            left: -45px;
+            top: 60px;
+            font-size: 11px;
+            font-weight: bold;
+            width: 110px;
+            color: #333;
+        }
+
+        .session-text1 {
+            transform: rotate(-90deg);
+            position: absolute;
+            left: 420px;
+            top: 105px;
+            font-size: 13px;
+            font-weight: bold;
+            width: 110px;
+            color: #333;
+        }
+
+
+        .info-grid {
+            flex: 1;
+            font-size: 14px;
+            margin-left: 15px;
+            padding-top: 5px;
+        }
+
+        .student-name {
+            color: var(--dolphins-red);
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 1px;
+            line-height: 1.2;
+        }
+
+        .info-label {
+            width: 65px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .card-footer {
+            background: var(--dolphins-gold);
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 16px;
+            padding: 4px;
+            font-weight: bold;
+            color: var(--dolphins-blue);
+        }
+
+        /* Back Side Elements */
+        .back-title {
+            background: var(--dolphins-gold);
+            text-align: center;
+            padding: 6px;
+            font-weight: bold;
+            font-size: 24px;
+            color: #000;
+        }
+
+        .auth-grid {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+        }
+
+        .auth-item {
+            text-align: center;
+            width: 30%;
+        }
+
+        .auth-item img {
+            width: 100px;
+            height: 95px;
+            border: 1px solid #000;
+            margin-bottom: 3px;
+            background: #eee;
+            padding: 5px;
+        }
+
+        .auth-item p {
+            font-size: 14px;
+            margin: 0;
+            font-weight: bold;
+            line-height: 1;
+            color: #000;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+            }
+
+            .id-card-canvas {
+                box-shadow: none;
+                border: 1px solid #000;
+            }
+        }
+
+        .modal.show .modal-dialog {
+
+            position: absolute;
+            top: 50%;
+            left: 42%;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Lorem Ipsum Dolor Sit Amet</h1>
-    <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod 
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, 
-        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-    </p>
-    <ul>
-        <li>Duis aute irure dolor in reprehenderit</li>
-        <li>In voluptate velit esse cillum dolore</li>
-        <li>Eu fugiat nulla pariatur</li>
-    </ul>
+
+    <nav class="navbar navbar-dark bg-dark mb-4 no-print">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1"><i class="bi bi-card-heading me-2"></i> Dolphins ID Management
+                System</span>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4">
+        <div class="row">
+            <div class="col-xl-5 col-lg-6 no-print">
+                <div class="card admin-card mb-4">
+                    <div class="card-body p-4">
+                        <div class="section-title mt-0">Student Basic Info</div>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" id="f_name" class="form-control form-control-sm"
+                                    placeholder="Ex: SHIVANSH SINGH" onkeyup="updatePreview()">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Enrollment No.</label>
+                                <input type="text" id="f_eno" class="form-control form-control-sm"
+                                    placeholder="DHS/6266/26" onkeyup="updatePreview()">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Class</label>
+                                <select class="form-select form-control-sm" id="f_class" name="student_class"
+                                    onchange="updatePreview()" required>
+                                    <option value="">Select Class</option>
+                                    <option value="NUR A1">NUR A1</option>
+                                    <option value="NUR A2">NUR A2</option>
+                                    <option value="KG">KG</option>
+                                    <option value="I">I</option>
+                                    <option value="II">II</option>
+                                    <option value="III">III</option>
+                                    <option value="IV">IV</option>
+                                    <option value="V">V</option>
+                                    <option value="VI">VI</option>
+                                    <option value="VII">VII</option>
+                                    <option value="VIII">VIII</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Date of Birth</label>
+                                <input type="date" id="f_dob" class="form-control form-control-sm"
+                                    placeholder="DD.MM.YYYY" onkeyup="updatePreview()">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Academic Session</label>
+                                <input type="text" id="f_session" class="form-control form-control-sm"
+                                    placeholder="2026-27" onkeyup="updatePreview()">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Residential Address</label>
+                                <textarea id="f_addr" class="form-control form-control-sm" rows="2"
+                                    onkeyup="updatePreview()"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="section-title">Parent & Guardian Details</div>
+                        <div class="row g-3">
+                            <div class="col-md-7">
+                                <label class="form-label">Father's Name</label>
+                                <input type="text" id="f_father" class="form-control form-control-sm"
+                                    onkeyup="updatePreview()">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Father Contact</label>
+                                <input type="text" id="f_fmobile" class="form-control form-control-sm"
+                                    placeholder="Mobile No." onkeyup="updatePreview()">
+                            </div>
+                            <div class="col-md-7">
+                                <label class="form-label">Mother's Name</label>
+                                <input type="text" id="f_mother" class="form-control form-control-sm"
+                                    onkeyup="updatePreview()">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Mother Contact</label>
+                                <input type="text" id="f_mmobile" class="form-control form-control-sm"
+                                    placeholder="Mobile No." onkeyup="updatePreview()">
+                            </div>
+                            <div class="col-md-7">
+                                <label class="form-label">Guardian's Name</label>
+                                <input type="text" id="f_guardian" class="form-control form-control-sm"
+                                    value="KRISHNVIR SINGH" onkeyup="updatePreview()">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Guardian Contact</label>
+                                <input type="text" id="f_gmobile" class="form-control form-control-sm"
+                                    value="9414442768" onkeyup="updatePreview()">
+                            </div>
+                        </div>
+
+                        <div class="section-title">Photo Uploads</div>
+                        <div class="row g-2 d-flex align-items-center">
+                            <div class="col-6 "> <span class="text-muted">Student</span><input type="file"
+                                    class="form-control form-control-sm" onchange="handleImage(this, 'p_stu')"></div>
+
+                            <div class="col-6 "> <span class="text-muted">Father</span><input type="file"
+                                    class="form-control form-control-sm" onchange="handleImage(this, 'p_fat')"></div>
+
+                            <div class="col-6 "> <span class="text-muted">Mother</span><input type="file"
+                                    class="form-control form-control-sm" onchange="handleImage(this, 'p_mot')"></div>
+
+                            <div class="col-6 "> <span class="text-muted">Guardian</span><input type="file"
+                                    class="form-control form-control-sm" onchange="handleImage(this, 'p_gua')"></div>
+                        </div>
+
+                        <div class="row mt-4 g-2">
+                            <div class="col-6"><button class="btn btn-outline-dark w-100" onclick="window.print()"><i
+                                        class="bi bi-printer me-2"></i>Print Card</button></div>
+                            <div class="col-6"><button class="btn btn-primary w-100" onclick="downloadPDF()"><i
+                                        class="bi bi-file-pdf me-2"></i>Download PDF</button></div>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <button type="button" class="btn btn-success w-100" data-bs-toggle="modal"
+                                data-bs-target="#excelModal">
+                                <i class="bi bi-file-earmark-excel"></i> Bulk Upload Excel
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-7 col-lg-6 text-center">
+                <div class="sticky-top" style="top: 80px;">
+                    <h6 class="text-muted mb-3 no-print"><i class="bi bi-eye me-2"></i>LIVE CARD PREVIEW</h6>
+                    <div id="pdf-content">
+                        <div class="id-card-canvas">
+                            <div class="card-header-box">
+                                <img src="http://localhost/idcard/uploads/logo.png" height="67" width="67" class="me-2">
+                                <div class="school-info text-start">
+                                    <h1>DOLPHINS GROUP OF SCHOOLS</h1>
+                                    <p>DOLPHINS HIGH SCHOOL (10+2 CBSE Affiliated) Jaipur</p>
+                                    <p>DOLPHINS INTERNATIONAL SCHOOL (Kindergarten till VIII)</p>
+                                </div>
+                            </div>
+                            <div class="d-flex p-2">
+                                <div class="stu-photo-area">
+                                    <div class="session-text">Session : <span id="v_session">2026-27</span></div>
+                                    <img id="p_stu"
+                                        src="http://localhost/idcard/uploads/Profile_avatar_placeholder_large.png"
+                                        onerror="this.src='http://localhost/idcard/uploads/Profile_avatar_placeholder_large.png'">
+                                </div>
+                                <div class="info-grid text-start">
+                                    <div class="student-name" id="v_name">STUDENT NAME</div>
+                                    <div class="info-row">
+                                        <div class="info-label">E/No.</div>: <span id="v_eno">---</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="info-label">Class</div>: <span id="v_class">---</span>
+                                        <b class="ms-2 pl-4">DOB:</b> <b><span id="v_dob">---</span></b>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="info-label">Father</div>: <span id="v_father">---</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="info-label">Mother</div>: <span id="v_mother">---</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="info-label">Mobile</div>: <span id="v_fmobile">---</span>
+                                    </div>
+                                    <div class="info-row addresssss ">
+                                        <div class="info-label">Address</div>: <span id="v_addr">---</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                Helpline : 8003080000, 8003040500 | www.dolphinsgroup.org <br>
+                                Head Office : Plot -14, Sector-28, Pratap Nagar, Jaipur
+                            </div>
+                        </div>
+
+                        <div class="id-card-canvas">
+                            <div class="back-title text-uppercase">Commuting Authorized Persons</div>
+                            <div class="auth-grid">
+                                <div class="auth-item"><img id="p_fat"
+                                        src="http://localhost/idcard/uploads/Profile_avatar_placeholder_large.png">
+                                    <p>FATHER</p>
+                                    <p id="v_f2">---</p>
+                                    <p id="v_fm2" class=" small">---</p>
+                                </div>
+                                <div class="auth-item"><img id="p_mot"
+                                        src="http://localhost/idcard/uploads/femaleavatar.png">
+                                    <p>MOTHER</p>
+                                    <p id="v_m2">---</p>
+                                    <p id="v_mm2" class=" small">---</p>
+                                </div>
+                                <div class="auth-item"><img id="p_gua"
+                                        src="http://localhost/idcard/uploads/Profile_avatar_placeholder_large.png">
+                                    <p>GUARDIAN</p>
+                                    <p id="v_g2">---</p>
+                                    <p id="v_gm2" class=" small">---</p>
+                                </div>
+                                <div class="session-text1"><span id="branchcode">DHS/6266/26</span></div>
+
+                            </div>
+                            <div style="color: var(--dolphins-red); font-weight: bold;font-size: 18px;margin:20px; ">
+                                DOLPHINS
+                                INTERNATIONAL
+                                SCHOOL BRANCHES</div>
+                            <div class="card-footer"
+                                style="height: 65px; display: flex; flex-direction: column; justify-content: center;">
+
+                                <div style="
+    font-size: 13.5px;
+    /* line-height: 0.5; */
+  
+">
+                                    Building No. 440, Lane No. 4, Raja Park, Jaipur Tel. 2623525, 8003080000<br>
+                                    53, Kanwar Nagar, Chandi Ki Taksal, Jaipur Tel. 2633471, 98288885520<br>
+                                    Plot No. 21, Fagi Road, Chaksu, Mob.: 9772033337, 8003080000
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade no-print" id="excelModal" tabindex="-1" aria-labelledby="excelModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="excelModalLabel">Bulk Student Upload</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="file" id="excel_file" class="form-control" accept=".xlsx, .xls">
+                            <div id="status-msg" class="mt-2 small"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="processExcel()">Generate
+                                PDF</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div id="bulk-render-area" style="background:#fff; "></div>
+
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script>
+        function updatePreview() {
+            const mapping = {
+                'f_name': 'v_name',
+                'f_eno': 'v_eno',
+                'f_class': 'v_class',
+                'f_dob': 'v_dob',
+                'f_session': 'v_session',
+                'f_father': ['v_father', 'v_f2'],
+                'f_mother': ['v_mother', 'v_m2'],
+                'f_fmobile': ['v_fmobile', 'v_fm2'],
+                'f_mmobile': 'v_mm2',
+                'f_addr': 'v_addr',
+                'f_guardian': 'v_g2',
+                'f_gmobile': 'v_gm2'
+            };
+
+            for (let id in mapping) {
+                const element = document.getElementById(id);
+                if (element) {
+                    let val = element.value || "---";
+
+                    // Special handling for Date display (Optional: converts 2026-04-07 to 07.04.2026)
+                    if (id === 'f_dob' && element.value) {
+                        const dateParts = element.value.split('-');
+                        if (dateParts.length === 3) val = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+                    }
+
+                    let targets = Array.isArray(mapping[id]) ? mapping[id] : [mapping[id]];
+                    targets.forEach(t => {
+                        const targetElement = document.getElementById(t);
+                        if (targetElement) targetElement.innerText = val;
+                    });
+                }
+            }
+        }
+
+        function handleImage(input, targetId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => { document.getElementById(targetId).src = e.target.result; };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('pdf-content');
+            const studentName = document.getElementById('f_name').value || "Student";
+            const opt = {
+                margin: [2, 2, 2, 2], // Increased bottom margin (20mm)
+                filename: `ID_Card_${studentName}.pdf`,
+                image: { type: 'jpeg', quality: 1.0 },
+                html2canvas: {
+                    scale: 3, // Higher scale for sharper text
+                    useCORS: true,
+                    letterRendering: true,
+                    scrollY: 0
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // New way to execute to ensure images are loaded
+            html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+                // This ensures the PDF doesn't cut off mid-render
+            }).save();
+        }
+        // Set initial values
+        updatePreview();
+        // 1. Function to process Excel Data
+
+
+
+        // ================= DATE FORMAT =================
+
+        // ================= DATE FORMAT =================
+        function formatDate(date) {
+            if (!date) return "---";
+            let d = new Date(date);
+            if (isNaN(d)) return date;
+            return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
+        }
+
+        // ================= READ EXCEL =================
+        function processExcel() {
+
+            const file = document.getElementById("excel_file").files[0];
+
+            if (!file) {
+                alert("Please select Excel file");
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: "array" });
+
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+                if (rows.length === 0) {
+                    alert("Excel is empty");
+                    return;
+                }
+
+                // ✅ MAP DATA (MATCH YOUR EXCEL HEADERS)
+                const students = rows.map(row => ({
+                    name: row["Full Name"],
+                    eno: row["Enrollment No"],
+                    class: row["Class"],
+                    dob: formatDate(row["Date of Birth"]),
+                    session: row["Academic Session"],
+                    address: row["Residential Address"],
+                    father: row["Father's Name"],
+                    f_mobile: row["Father Contact"],
+                    mother: row["Mother's Name"],
+                    m_mobile: row["Mother Contact"],
+                    guardian: row["Guardian's Name"],
+                    g_mobile: row["Guardian Contact"],
+
+                    // LOCAL IMAGE PATH
+                    stu_img: "http://localhost/idcard/uploads/" + row["Student Photo"],
+                    fat_img: "http://localhost/idcard/uploads/" + row["Father Photo"],
+                    mot_img: "http://localhost/idcard/uploads/" + row["Mother Photo"],
+                    gua_img: "http://localhost/idcard/uploads/" + row["Guardian Photo"],
+                }));
+
+                console.log("Students Data:", students);
+
+                generateBulkPDF(students);
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        // ================= GENERATE PDF =================
+        async function generateBulkPDF(students) {
+            const renderArea = document.getElementById("bulk-render-area");
+            renderArea.innerHTML = "";
+
+            students.forEach((stu) => {
+                const wrapper = document.createElement("div");
+                // Ensure each student starts on a new A4 page
+                wrapper.style.pageBreakAfter = "always";
+                wrapper.style.display = "flex";
+                wrapper.style.flexDirection = "column";
+                wrapper.style.alignItems = "center";
+                wrapper.style.padding = "10mm 0";
+
+                wrapper.innerHTML = `
+            <div style="width: 210mm; ">
+                
+                <div class="id-card-canvas" style="margin-bottom: 10px; display: inline-block; float: none;">
+                    <div class="card-header-box">
+                        <img src="http://localhost/idcard/uploads/logo.png" height="65" width="65" class="me-2">
+                        <div class="school-info text-start">
+                            <h1>DOLPHINS GROUP OF SCHOOLS</h1>
+                            <p>DOLPHINS HIGH SCHOOL (10+2 CBSE Affiliated) Jaipur</p>
+                            <p>DOLPHINS INTERNATIONAL SCHOOL (Kindergarten till VIII)</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex p-2">
+                        <div class="stu-photo-area">
+                            <div class="session-text">Session : ${stu.session}</div>
+                            <img src="${stu.stu_img}" 
+                                 onerror="this.src='http://localhost/idcard/uploads/Profile_avatar_placeholder_large.png'">
+                        </div>
+
+                        <div class="info-grid text-start">
+                            <div class="student-name">${stu.name}</div>
+                            <div class="info-row"><div class="info-label">E/No.</div>:<b class="ms-2">${stu.eno}</b></div>
+                            <div class="info-row"><div class="info-label">Class</div>: <b class="ms-2">${stu.class}</b> <b class="ms-2">DOB:${stu.dob}</b></div>
+                            <div class="info-row"><div class="info-label">Father</div>: <b class="ms-2">${stu.father}</b></div>
+                            <div class="info-row"><div class="info-label">Mother</div>: <b class="ms-2">${stu.mother}</b></div>
+                            <div class="info-row"><div class="info-label">Mobile</div>: <b class="ms-2">${stu.f_mobile}</b></div>
+                            <div class="info-row"><div class="info-label">Address</div>: <b class="ms-2">${stu.address}</b></div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        Helpline : 8003080000, 8003040500 | www.dolphinsgroup.org <br>
+                        Head Office : Plot -14, Sector-28, Pratap Nagar, Jaipur
+                    </div>
+                </div>
+
+                <div class="id-card-canvas" style="display: inline-block; float: none;">
+                    <div class="back-title text-uppercase">Commuting Authorized Persons</div>
+                    <div class="auth-grid">
+                        <div class="auth-item">
+                            <img src="${stu.fat_img}" onerror="this.src='http://localhost/idcard/uploads/Profile_avatar_placeholder_large.png'">
+                            <p>FATHER</p>
+                            <p>${stu.father}</p>
+                            <p class=" small">${stu.f_mobile}</p>
+                        </div>
+                        <div class="auth-item">
+                            <img src="${stu.mot_img}" onerror="this.src='http://localhost/idcard/uploads/femaleavatar.png'">
+                            <p>MOTHER</p>
+                            <p>${stu.mother}</p>
+                            <p class=" small">${stu.m_mobile}</p>
+                        </div>
+                        <div class="auth-item">
+                            <img src="${stu.gua_img}" onerror="this.src='http://localhost/idcard/uploads/Profile_avatar_placeholder_large.png'">
+                            <p>GUARDIAN</p>
+                            <p>${stu.guardian}</p>
+                            <p class=" small">${stu.g_mobile}</p>
+                        </div>
+                        <div class="session-text1"><span id="branchcode">DHS/6266/26</span></div>
+                    </div>
+                    <div class="text-center" style="color: var(--dolphins-red); font-weight: bold;font-size: 21px; ">DOLPHINS INTERNATIONAL
+                                    SCHOOL BRANCHES</div>
+                    <div class="card-footer" style="height: 75px; display: flex; flex-direction: column; justify-content: center;">
+               
+                        <div style="font-size: 14px; ">
+                            Building No. 440, Lane No. 4, Raja Park, Jaipur Tel. 2623525, 8003080000<br>
+                            53, Kanwar Nagar, Chandi Ki Taksal, Jaipur Tel. 2633471, 98288885520<br>
+                            Plot No. 21, Fagi Road, Chaksu, Mob.: 9772033337, 8003080000
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+                renderArea.appendChild(wrapper);
+            });
+
+            // Wait for images to load
+            const images = renderArea.querySelectorAll("img");
+            await Promise.all([...images].map(img => {
+                return new Promise(resolve => {
+                    if (img.complete) resolve();
+                    else img.onload = img.onerror = resolve;
+                });
+            }));
+
+            html2pdf().set({
+                margin: [2, 2, 2, 2],
+                filename: "Student_ID_Cards.pdf",
+                image: { type: "jpeg", quality: 1.0 },
+                html2canvas: { scale: 3, useCORS: true, letterRendering: true, scrollY: 0 },
+                jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+            }).from(renderArea).save();
+
+            const excelModal = bootstrap.Modal.getInstance(document.getElementById('excelModal'));
+            if (excelModal) excelModal.hide();
+        }
+    </script>
 </body>
+
 </html>
